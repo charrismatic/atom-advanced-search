@@ -20,6 +20,7 @@
     "atom",
     "package",
     "cli",
+    "explore",
     "search",
     "apm"
   ],
