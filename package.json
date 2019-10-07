@@ -1,0 +1,40 @@
+{
+  "name": "atom-advanced-search",
+  "version": "1.0.0",
+  "description": "search, sort, and filtering tool for Atom apm command line",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "standard",
+    "dev": "./node_modules/.bin/rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development",
+    "build": "./node_modules/.bin/rollup -c ./module-config.js  --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production"
+  },
+  "bin": {
+    "apm-search": "./bin/apm-search"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charrismatic/atom-advanced-search.git"
+  },
+  "keywords": [
+    "atom",
+    "package",
+    "cli",
+    "search",
+    "apm"
+  ],
+  "author": "Matt Harris <charrismatic@protonmail.com> (https://charrismatic.github.io/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/charrismatic/atom-advanced-search/issues"
+  },
+  "homepage": "https://github.com/charrismatic/atom-advanced-search#readme",
+  "devDependencies": {
+    "rollup": "^1.23.1",
+    "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-executable": "^1.5.1",
+    "rollup-plugin-filesize": "^6.2.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-terser": "^5.1.2"
+  }
+}
