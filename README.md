@@ -67,7 +67,7 @@ git clone "git+https://github.com/charrismatic/atom-advanced-search.git"
 
 Executable command is built with rollup. No other dependencies.
 
-- __start__  `node index.js``
+- __start__  `node index.js`
 - __dev__  `node_modules/.bin/rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development`
 - __build__  `node_modules/.bin/rollup -c ./module-config.js  --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production`
 
