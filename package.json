@@ -7,7 +7,7 @@
     "start": "node index.js",
     "test": "standard",
     "dev": "./node_modules/.bin/rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development",
-    "build": "./node_modules/.bin/rollup -c ./module-config.js  --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production"
+    "build": "./node_modules/.bin/rollup -c ./module-config.js --exports named --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production"
   },
   "bin": {
     "apm-search": "./bin/apm-search"
@@ -33,9 +33,11 @@
   "devDependencies": {
     "rollup": "^1.23.1",
     "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-executable": "^1.5.1",
     "rollup-plugin-filesize": "^6.2.0",
     "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.2"
   }
 }

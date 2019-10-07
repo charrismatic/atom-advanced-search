@@ -1,13 +1,12 @@
-#!/usr/bin/env node
+//#!/usr/bin/env node
 
-const { parse_arguments } = require('./lib/parse_args');
-const { get_packages } = require('./lib/get_packages');
-const { help } = require('./lib/help');
-const { render } = require('./lib/render');
-const { debug } = require('./lib/debug');
+import { help } from './lib/help';
+import { debug, __DEBUG__ } from './lib/debug';
+import { parse_arguments } from './lib/parse_args';
+import { get_packages } from './lib/get_packages';
+import { render } from './lib/render';
 
 const __DEV__ = ( process.env.NODE_ENV === 'dev'|| process.env.NODE_ENV === 'development' );
-const __DEBUG__ = process.env.NODE_DEBUG_LOGGING;
 
 const encoding = 'utf-8';
 
@@ -15,6 +14,7 @@ const defaults = {
   verbose: false,
   sort: 'stars',
   select: 'packages',
+  color: true,
 };
 
 var options;
@@ -50,7 +50,7 @@ const process_stream = () => {
 };
 
 const process_file = (filename) => {
-  const fs = require('fs');
+  const { fs } = require('fs');
   if (!filename) { return false; }
   fs.readFile([__dirname, filename].join('/'), ((err, data) => {
     if (err) {console.log('Error reading from file', err, data);
@@ -73,12 +73,16 @@ args.shift();
 if (args[0] === __filename) {
   args.shift();
 }
-
-runtime_options = parse_arguments(args);
+if (!args || args.length === 0){
+  help();
+  process.exit(0);
+}
+var runtime_options = parse_arguments(args);
 options = Object.assign({}, options, runtime_options);
 query = options.query;
 
 if (process.stdin.isTTY) {
+
   main(query, options);
 
 } else {
