@@ -1,4 +1,4 @@
-[https://github.com/charrismatic/atom-package-sort-cli#readme](https://github.com/charrismatic/atom-package-sort-cli#readme)
+[https://github.com/charrismatic/atom-advanced-search#readme](https://github.com/charrismatic/atom-advanced-search#readme)
 
 # Atom Advanced Search
 
@@ -59,7 +59,7 @@ Matt Harris <charrismatic@protonmail.com> (https://charrismatic.github.io/)
 ### Project Repo
 
 -  type: "git"
--  url: "git+https://github.com/charrismatic/atom-package-sort-cli.git"
+-  url: "git+https://github.com/charrismatic/atom-advanced-search.git"
 
 ## Dependencies
 
@@ -74,7 +74,7 @@ Executable command is built with rollup. No other dependencies.
 
 ### Issues
 
--  url: "https://github.com/charrismatic/atom-package-sort-cli/issues"
+-  url: "https://github.com/charrismatic/atom-advanced-search/issues"
 
 ---
 
