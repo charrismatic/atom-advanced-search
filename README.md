@@ -21,7 +21,7 @@ A wrapper around Atoms apm command providing additional sorting and filters, wit
 
 ### Install
 
-```
+```sh
 npm install -g atom-advanced-search
 ```
 
@@ -35,9 +35,9 @@ apm-search [options] <name>
 
 __SELECT OPTIONS__
 
-  -`--select-packages`   Get packages (default)
+  - `--select-packages`   Get packages (default)
   - `--select-themes`   Get themes
-  -`--select-featured`   Get featured packages/themes (ignores name argument)
+  - `--select-featured`   Get featured packages/themes (ignores name argument)
 
 __SORT OPTIONS__
 
