@@ -1,13 +1,14 @@
-[https://github.com/charrismatic/atom-advanced-search#readme](https://github.com/charrismatic/atom-advanced-search#readme)
 
 # Atom Advanced Search
 
-> Search, sort, and filtering tool for Atom apm packages
-
+> Search, sort, and filtering tool for Atom apm package manager
 
 ![screenshot](./assets/screenshot.png)
 
-Version: 1.0.0
+
+Version: 1.0.1
+
+[https://github.com/charrismatic/atom-advanced-search](https://github.com/charrismatic/atom-advanced-search)
 
 Topics: [atom](https://github.com/topics/atom),  [package](https://github.com/topics/package),  [cli](https://github.com/topics/cli),  
 
@@ -81,3 +82,7 @@ Executable command is built with rollup. No other dependencies.
 ### Licesnse
 
 MIT[MIT](https://opensource.org/licenses/undefined)
+
+
+
+[https://www.npmjs.com/package/atom-advanced-search](https://www.npmjs.com/package/atom-advanced-search)
