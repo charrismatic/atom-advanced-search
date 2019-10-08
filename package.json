@@ -1,13 +1,13 @@
 {
   "name": "atom-advanced-search",
-  "version": "1.0.4",
+  "version": "1.0.2",
   "description": "search, sort, and filtering tool for Atom apm command line",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "standard",
     "prepublish": "npm run bump && npm run lint:json",
-    "lint:json": "jsonlint -sz -c ./package.json",
+    "lint:json": "jsonlint -s -c ./package.json",
     "bump": "npm version patch",
     "dev": "./node_modules/.bin/rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development",
     "build": "./node_modules/.bin/rollup -c ./module-config.js --exports named --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production",
