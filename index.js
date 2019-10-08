@@ -9,7 +9,8 @@ import { render } from './lib/render';
 const __DEV__ = ( process.env.NODE_ENV === 'dev'|| process.env.NODE_ENV === 'development' );
 
 const encoding = 'utf-8';
-
+var query;
+var data = '';
 const defaults = {
   verbose: false,
   sort: 'stars',
@@ -17,37 +18,48 @@ const defaults = {
   color: true,
 };
 
-var options;
-var query;
-var data = '';
 
 const main = (query, options) => {
-  if (!query){
+  if (!query && !options.select){
     help();
     process.exit(0);
   }
+
   if (options.verbose) {
     console.log('options', options);
   }
-  debug('parsed', options, query);
 
   const packages = get_packages(query, options);
   render(packages, options);
 };
+
+
 
 const parse_options = () => {
   var pkgrc = process.env.PKG_OPTIONS || "{}";
   options = Object.assign({}, defaults, JSON.parse(pkgrc));
   debug('Process Env:', process.env, 'Options: ', options );
   return options;
-};
+}
 
-const process_stream = () => {
+
+
+const process_stream = (options) => {
   const content = Buffer.from(data).toString(encoding);
-  var packages = JSON.parse(content.trim());
-  debug(packages);
-  render(packages, options);
-};
+  if (!content){
+    help();
+    process.exit(0);
+  }
+  try {
+    var packages = JSON.parse(content.trim());
+    debug(packages);
+  } catch (e) {
+    console.log("Error processing input data", e);
+  } finally {
+    render(packages, options);
+  }
+}
+
 
 const process_file = (filename) => {
   const { fs } = require('fs');
@@ -57,15 +69,16 @@ const process_file = (filename) => {
       return false;
     }
     let packages = Buffer.from(data).toString(encoding);
-    // console.log(packages);
     render(packages, options);
-  }));
-};
+  }))
+}
 
 
 /// --------------------
 //  MAIN
 // ---------------------
+
+var options;
 options = parse_options();
 
 var args = process.argv;
@@ -73,11 +86,8 @@ args.shift();
 if (args[0] === __filename) {
   args.shift();
 }
-if (!args || args.length === 0){
-  help();
-  process.exit(0);
-}
 var runtime_options = parse_arguments(args);
+
 options = Object.assign({}, options, runtime_options);
 query = options.query;
 
@@ -86,15 +96,16 @@ if (process.stdin.isTTY) {
   main(query, options);
 
 } else {
+
   process.stdin.setEncoding(encoding)
   .on('readable', function() {
     var chunk;
-    while (chunk = process.stdin.read()){
-      data += chunk;
-    }
+    while (chunk = process.stdin.read()){ data += chunk }
   })
   .on('end', function () {
     data = data.replace(/\n$/, '');
-    process_stream();
+
+    process_stream(options);
+
   });
 }

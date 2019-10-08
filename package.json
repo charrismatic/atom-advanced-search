@@ -6,8 +6,12 @@
   "scripts": {
     "start": "node index.js",
     "test": "standard",
+    "prepublish": "npm run bump && npm run lint:json",
+    "lint:json": "jsonlint -sz -c ./package.json",
+    "bump": "npm version patch",
     "dev": "./node_modules/.bin/rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development",
-    "build": "./node_modules/.bin/rollup -c ./module-config.js --exports named --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production"
+    "build": "./node_modules/.bin/rollup -c ./module-config.js --exports named --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production",
+    "deploy": ""
   },
   "bin": {
     "apm-search": "./bin/apm-search"

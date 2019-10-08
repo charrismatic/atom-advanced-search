@@ -2,29 +2,28 @@
 'use strict';
 
 const help = () => {
-  const list_spacer = '\n   ';
-  const col_spacer = '\t';
-
+  const listspacer = "\n   ";
+  const colspacer = "\t";
   console.log([
-    ['\n Atom Advanced Search', 'search, sort, and filtering tool for Atom apm packages'].join(' - '),
-    ['\n [USAGE]', 'apm-search [options] <name>' ].join(list_spacer),
-    ['\n [SELECT OPTIONS]',
-      ['  --select-packages',  'Get packages (default)'].join(col_spacer),
-      ['  --select-themes',  'Get themes'].join(col_spacer),
-      ['  --select-featured',  'Get featured packages/themes (ignores name argument)'].join(col_spacer),
-    ].join(list_spacer),
-    ['\n [SORT OPTIONS]',
-      ['  --sort-stars', 'Sort by stars (default)'].join(col_spacer),
-      ['  --sort-downloads', 'Sort by downloads'].join(col_spacer),
-    ].join(list_spacer),
-    ['\n [GENRAL OPTIONS]',
-      ['  --help       ', 'Show this help menu'].join(col_spacer),
-      ['  --verbose    ', 'Show more information'].join(col_spacer),
-      ['  --nocolor    ', 'Disable color printing on output'].join(col_spacer),
-      ['  --version    ', 'Output package version number'].join(col_spacer),
-    ].join(list_spacer),
-    [''],
-  ].join('\n'));
+    ["\n Atom Advanced Search", "search, sort, and filtering tool for Atom apm packages"].join(" - "),
+    ["\n [USAGE]", "apm-search [options] <name>" ].join(listspacer),
+    ["\n [SELECT OPTIONS]",
+      ["  --select-packages",  "Get packages (default)"].join(colspacer),
+      ["  --select-themes",  "Get themes"].join(colspacer),
+      ["  --select-featured",  "Get featured packages/themes (ignores name argument)"].join(colspacer),
+    ].join(listspacer),
+    ["\n [SORT OPTIONS]",
+      ["  --sort-stars", "Sort by stars (default)"].join(colspacer),
+      ["  --sort-downloads", "Sort by downloads"].join(colspacer),
+    ].join(listspacer),
+    ["\n [GENRAL OPTIONS]",
+      ["  --help       ", "Show this help menu"].join(colspacer),
+      ["  --verbose    ", "Show more information"].join(colspacer),
+      ["  --nocolor    ", "Disable color printing on output"].join(colspacer),
+      ["  --version    ", "Output package version number"].join(colspacer),
+    ].join(listspacer),
+    [""],
+  ].join("\n"));
 };
 
 const __DEBUG__ = process.env.NODE_DEBUG_LOGGING ? true : false;
@@ -35,7 +34,7 @@ const debug = (...msg) => {
   }
 };
 
-const name="atom-advanced-search";const version="1.0.0";
+const name="atom-advanced-search";const version="1.0.1";
 
 const pkgver = () => {
   console.log([name, version].join(' v'));
@@ -44,7 +43,7 @@ const pkgver = () => {
 const parse_arguments = (args) => {
   var options = {};
   debug('Args:', typeof(args), args);
-  if (!args){
+  if (!args || args.length === 0){
     return false;
 
   } else if (!Array.isArray(args)) {
@@ -134,58 +133,67 @@ const parse_arguments = (args) => {
 };
 
 const get_packages = (query, options) => {
+
+  console.log(
+    [
+    "Searching apm (",
+    options.select,
+    ") for:",
+    query
+    ].join(" ")
+  );
+
   let comm = [
-    'apm',
-    options.select === 'featured' ? 'featured'  : 'search',
-    '--json',
-    options.select === 'themes' ? '--themes' : '',
-    options.select === 'featured' ? '' : query,
-  ].join(' ');
+    "apm",
+    options.select === "featured" ? "featured" : "search",
+    "--json",
+    options.select === "themes" ? "--themes" : null,
+    options.select === "featured" ? null : "query",
+  ].join(" ");
 
-  console.log(`Searching apm (${options.select}) for:`, query);
-
-  const { execSync } = require('child_process');
+  const { execSync } = require("child_process");
   try {
-    const data = execSync(`${comm}`);
-    const text = Buffer.from(data).toString('UTF-8');
+    const data = execSync(comm.toString());
+    const text = Buffer.from(data).toString("UTF-8");
     const packages = JSON.parse(text.trim());
     return packages;
   } catch (e) {
-    console.error(`exec error: ${e}`);
+    console.error("exec error: ", e);
     return;
   }
 };
 
 const color = (enabled) => {
-  var tty = require('tty');
+  var tty = require("tty");
+
   var styles = {
-    'bold':      ['1m', '22m'],
-    'dim':       ['2m', '22m'],
-    'italic':    ['3m', '23m'],
-    'underline': ['4m', '24m'],
-    'inverse':   ['7m', '27m'],
-    'black':     ['30m', '39m'],
-    'red':       ['31m', '39m'],
-    'green':     ['32m', '39m'],
-    'yellow':    ['33m', '39m'],
-    'blue':      ['34m', '39m'],
-    'magenta':   ['35m', '39m'],
-    'cyan':      ['36m', '39m'],
-    'white':     ['37m', '39m'],
-    'default':   ['39m', '39m'],
-    'grey':      ['90m', '39m'],
-    'bgBlack':   ['40m', '49m'],
-    'bgRed':     ['41m', '49m'],
-    'bgGreen':   ['42m', '49m'],
-    'bgYellow':  ['43m', '49m'],
-    'bgBlue':    ['44m', '49m'],
-    'bgMagenta': ['45m', '49m'],
-    'bgCyan':    ['46m', '49m'],
-    'bgWhite':   ['47m', '49m'],
-    'bgDefault': ['49m', '49m']
+    "bold":      ["1m", "22m"],
+    "dim":       ["2m", "22m"],
+    "italic":    ["3m", "23m"],
+    "underline": ["4m", "24m"],
+    "inverse":   ["7m", "27m"],
+    "black":     ["30m", "39m"],
+    "red":       ["31m", "39m"],
+    "green":     ["32m", "39m"],
+    "yellow":    ["33m", "39m"],
+    "blue":      ["34m", "39m"],
+    "magenta":   ["35m", "39m"],
+    "cyan":      ["36m", "39m"],
+    "white":     ["37m", "39m"],
+    "default":   ["39m", "39m"],
+    "grey":      ["90m", "39m"],
+    "bgBlack":   ["40m", "49m"],
+    "bgRed":     ["41m", "49m"],
+    "bgGreen":   ["42m", "49m"],
+    "bgYellow":  ["43m", "49m"],
+    "bgBlue":    ["44m", "49m"],
+    "bgMagenta": ["45m", "49m"],
+    "bgCyan":    ["46m", "49m"],
+    "bgWhite":   ["47m", "49m"],
+    "bgDefault": ["49m", "49m"]
   };
 
-  const _c = (s) => { return `\x1b[${s}`; };
+  const _c = (s) => {return ["\x1b[", s].join("") };
 
     enabled = !process.env.NOCOLOR && tty.isatty(1) && tty.isatty(2);
 
@@ -202,6 +210,11 @@ const color = (enabled) => {
 };
 
 const render = (packages, options) => {
+
+  if (!packages) {
+    console.log("No packages listed");
+    return false;
+  }
 
   color(options.color);
   const tty = require('tty');
@@ -220,16 +233,17 @@ const render = (packages, options) => {
   var sorted;
 
   const set_lengths = (pkg) => {
-    if (pkg.metadata){
-      pkg.description = pkg.metadata.description;
-      pkg.version = pkg.metadata.version;
+    var pkg_meta = pkg.metadata;
+    var pkg_stars = pkg.stargazers_count;
+    var pkg_down = pkg.downloads;
+    var pkg_name = pkg.name;
+    if (pkg_meta) {
+      var pkg_ver = pkg.metadata.version || pkg.version;
+      var pkg_desc = pkg.metadata.description || pkg.description;
     }
-    if (parseInt(pkg.stargazers_count) > MAX_STARS) { MAX_STARS = parseInt(pkg.stargazers_count); }
-    if (parseInt(pkg.downloads) > MAX_DOWNLOADS) { MAX_DOWNLOADS = parseInt(pkg.downloads); }
-    if (pkg.name.length > MAX_NAME) { MAX_NAME = pkg.name.length; }
-    var version_len = (pkg.version) ? pkg.version.length : 0;
-    if (version_len > MAX_VERSION) { MAX_VERSION = version_len; }
-  };
+
+    if (parseInt(pkg_stars) > MAX_STARS) { MAX_STARS = parseInt(pkg_stars);}    if (parseInt(pkg_down) > MAX_DOWNLOADS) { MAX_DOWNLOADS = parseInt(pkg_down);}    if (pkg_name.length > MAX_NAME) { MAX_NAME = pkg_name.length;}    var version_len = (pkg_ver) ? pkg_ver.length : 0;
+    if (version_len > MAX_VERSION) { MAX_VERSION = version_len;}  };
 
   const sort_stars = (a, b) => {
     set_lengths(a);
@@ -308,7 +322,7 @@ const render = (packages, options) => {
   pad_downs = MAX_DOWNLOADS.toString().length;
   pad_name = MAX_NAME;
   pad_version = MAX_VERSION;
-  base_length = (4 * 2) + pad_stars + pad_downs + pad_name + pad_version;
+  base_length = (4 * 2 +1) + pad_stars + pad_downs + pad_name + pad_version;
 
   print_table(sorted);
 };
@@ -316,7 +330,8 @@ const render = (packages, options) => {
 const __DEV__ = ( process.env.NODE_ENV === 'dev'|| process.env.NODE_ENV === 'development' );
 
 const encoding = 'utf-8';
-
+var query;
+var data = '';
 const defaults = {
   verbose: false,
   sort: 'stars',
@@ -324,19 +339,15 @@ const defaults = {
   color: true,
 };
 
-var options;
-var query;
-var data = '';
-
 const main = (query, options) => {
-  if (!query){
+  if (!query && !options.select){
     help();
     process.exit(0);
   }
+
   if (options.verbose) {
     console.log('options', options);
   }
-  debug('parsed', options, query);
 
   const packages = get_packages(query, options);
   render(packages, options);
@@ -349,13 +360,23 @@ const parse_options$1 = () => {
   return options;
 };
 
-const process_stream = () => {
+const process_stream = (options) => {
   const content = Buffer.from(data).toString(encoding);
-  var packages = JSON.parse(content.trim());
-  debug(packages);
-  render(packages, options);
+  if (!content){
+    help();
+    process.exit(0);
+  }
+  try {
+    var packages = JSON.parse(content.trim());
+    debug(packages);
+  } catch (e) {
+    console.log("Error processing input data", e);
+  } finally {
+    render(packages, options);
+  }
 };
 
+var options;
 options = parse_options$1();
 
 var args = process.argv;
@@ -363,11 +384,8 @@ args.shift();
 if (args[0] === __filename) {
   args.shift();
 }
-if (!args || args.length === 0){
-  help();
-  process.exit(0);
-}
 var runtime_options = parse_arguments(args);
+
 options = Object.assign({}, options, runtime_options);
 query = options.query;
 
@@ -376,15 +394,16 @@ if (process.stdin.isTTY) {
   main(query, options);
 
 } else {
+
   process.stdin.setEncoding(encoding)
   .on('readable', function() {
     var chunk;
-    while (chunk = process.stdin.read()){
-      data += chunk;
-    }
+    while (chunk = process.stdin.read()){ data += chunk; }
   })
   .on('end', function () {
     data = data.replace(/\n$/, '');
-    process_stream();
+
+    process_stream(options);
+
   });
 }

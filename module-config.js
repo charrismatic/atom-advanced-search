@@ -72,7 +72,7 @@ const mod = {
   banner: '#!/usr/bin/env node',
   path: './',
   input: 'index.js',
-  output: BUILD_ENV === 'production' ? 'apm-search' : 'apm-search.dev.js',
+  output: BUILD_ENV === 'production' ? 'apm-search.prod.js' : 'apm-search.dev.js',
   dest: './dist/',
   format: 'cjs',
   sourcemap: false,
