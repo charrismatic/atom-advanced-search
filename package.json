@@ -1,6 +1,6 @@
 {
   "name": "atom-advanced-search",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "search, sort, and filtering tool for Atom apm command line",
   "main": "index.js",
   "scripts": {
