@@ -34,7 +34,7 @@ const debug = (...msg) => {
   }
 };
 
-const name="atom-advanced-search";const version="1.0.1";
+const name="atom-advanced-search";const version="1.0.2";
 
 const pkgver = () => {
   console.log([name, version].join(' v'));
