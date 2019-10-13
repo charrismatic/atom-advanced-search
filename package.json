@@ -140,5 +140,5 @@
     "ver:bump": "npm version patch -m \"Increasing npm package version v%s\"",
     "ver:release": "npm version patch -m \"Release: %s\""
   },
-  "version": "1.0.3"
+  "version": "1.0.4"
 }
