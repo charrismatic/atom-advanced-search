@@ -34,124 +34,149 @@ const debug = (...msg) => {
   }
 };
 
-const name="atom-advanced-search";const version="1.0.2";
+const name="atom-advanced-search";const version="1.0.3";
 
 const pkgver = () => {
-  console.log([name, version].join(' v'));
+  console.log([name, version].join(" v"));
+};
+
+const defaults = {
+  verbose: false,
+  file: false,
+  sort: "stars",
+  select: "packages",
+  color: true,
+};
+
+const parse_options = (options) => {
+  var pkgrc = process.env.PKG_OPTIONS || "{}";
+  options = Object.assign({}, defaults, JSON.parse(pkgrc));
+  debug("Options set in environment variable:", process.env.PKG_OPTIONS, "Options: ", options);
+  return options;
 };
 
 const parse_arguments = (args) => {
   var options = {};
-  debug('Args:', typeof(args), args);
+  debug("Args:", typeof(args), args);
   if (!args || args.length === 0){
     return false;
 
   } else if (!Array.isArray(args)) {
-    if (typeof(args) === 'object' && Object.entries(args).length > 0) {
+    if (typeof(args) === "object" && Object.entries(args).length > 0) {
       parse_options(args);
     }
+
     return false;
 
   } else {
     var arg = args.shift();
     do {
-      debug('start loop', arg);
+      debug("start loop", arg);
       switch (arg) {
-        case __filename:
-          debug('found this file, skipping', arg);
-          debug('next arg', arg);
-          break;
+      case __filename:
+        debug("found this file, skipping", arg);
+        debug("next arg", arg);
+        break;
 
-        case '--help':
-          help();
-          debug('help', arg);
-          process.exit(0);
-          break;
+      case "--help":
+        help();
+        debug("help", arg);
+        process.exit(0);
+        break;
 
-        case '--version':
-          pkgver();
-          debug('version', arg);
-          process.exit(0);
-          break;
+      case "--version":
+        pkgver();
+        debug("version", arg);
+        process.exit(0);
+        break;
 
-        case '--verbose':
-          options.verbose = true;
-          debug('verbose', arg);
+      case "--verbose":
+        options.verbose = true;
+        debug("verbose", arg);
+        break;
 
-        case '--sort-stars':
-          options.sort = 'stars';
-          debug('stars', arg);
-          break;
+      case "--sort-stars":
+        options.sort = "stars";
+        debug("stars", arg);
+        break;
 
-        case '--nocolor':
-          process.env.NOCOLOR = true;
-          options.color = false;
-          debug('color', arg);
-          break;
+      case "--nocolor":
+        process.env.NOCOLOR = true;
+        options.color = false;
+        debug("color", arg);
+        break;
 
-        case '--sort-downloads':
-          options.sort = 'downloads';
-          debug('downloads', arg);
-          break;
+      case "--sort-downloads":
+        options.sort = "downloads";
+        debug("downloads", arg);
+        break;
 
-        case '--select-packages':
-          options.select = 'packages';
-          debug('stars', arg);
-          break;
+      case "--select-packages":
+        options.select = "packages";
+        debug("stars", arg);
+        break;
 
-        case '--select-themes':
-          options.select = 'themes';
-          debug('themes', arg);
-          break;
+      case "--select-themes":
+        options.select = "themes";
+        debug("themes", arg);
+        break;
 
-        case '--select-featured':
-          options.select = 'featured';
-          debug('featured', arg);
-          break;
+      case "--select-featured":
+        options.select = "featured";
+        debug("featured", arg);
+        break;
 
-        default:
-          if (arg.match(/^--/)){
-            debug(`Notice: Argument '${arg}' is unkown.`);
-            debug('unknown', arg);
-          } else if (typeof(arg) === 'undefined') {
-            debug('is undefined', arg);
+      case "--file":
+        arg = args.shift() || false;
+        options.file = arg;
+        debug("file", arg);
+        break;
 
-          } else if ( arg.length > 0) {
-            options.query = arg;
-            debug('is query', arg);
-          } else {
-            debug('didnt match passing..', arg);
-          }
+      default:
+        if (arg.match(/^--/)){
+          debug(`Notice: Argument '${arg}' is unkown.`);
+          debug("unknown", arg);
+        } else if (typeof(arg) === "undefined") {
+          debug("is undefined", arg);
 
-          debug('----end loop----\n', arg);
+        } else if ( arg.length > 0) {
+          options.query = arg;
+          debug("is query", arg);
+        } else {
+          debug("didnt match passing..", arg);
+        }
 
+        debug("----end loop----\n", arg);
       }
 
-    } while (arg = args.shift());
-    debug('stopping', args, arg);
-  }  return options;
+      arg = args.shift();
+    } while (arg);
+    debug("stopping", args, arg);
+  }
+  return options;
 };
 
 const get_packages = (query, options) => {
-
-  console.log(
-    [
-    "Searching apm (",
-    options.select,
-    ") for:",
-    query
-    ].join(" ")
-  );
+  const { execSync } = require("child_process");
 
   let comm = [
     "apm",
     options.select === "featured" ? "featured" : "search",
     "--json",
     options.select === "themes" ? "--themes" : null,
-    options.select === "featured" ? null : "query",
+    options.select === "featured" ? null : query,
   ].join(" ");
 
-  const { execSync } = require("child_process");
+  if (options.verbose) {
+    console.log(comm);
+  }
+
+  debug("[GET_PACKAGES] query:", query);
+  debug("[GET_PACKAGES] comand:", comm);
+  debug("[GET_PACKAGES] options:\n", options);
+
+  console.log([ "Searching apm (", options.select, ") for:", query ].join(" "));
+
   try {
     const data = execSync(comm.toString());
     const text = Buffer.from(data).toString("UTF-8");
@@ -159,7 +184,7 @@ const get_packages = (query, options) => {
     return packages;
   } catch (e) {
     console.error("exec error: ", e);
-    return;
+    return e;
   }
 };
 
@@ -193,57 +218,64 @@ const color = (enabled) => {
     "bgDefault": ["49m", "49m"]
   };
 
-  const _c = (s) => {return ["\x1b[", s].join("") };
+  const _c = (s) => {return ["\x1b[", s].join(""); };
 
-    enabled = !process.env.NOCOLOR && tty.isatty(1) && tty.isatty(2);
+  const fmt = (style, text) => {return [_c(style[1]), _c(style[0]), text, _c(style[1])].join("");};
 
-    Object.keys(styles).forEach(function(style) {
-      Object.defineProperty(String.prototype, style, {
-        get: function() {
-          return (enabled ? _c(styles[style][0]) + this + _c(styles[style][1]) : this);
-        },
-        enumerable: false
-      });
+  if (!process.env.COLORTERM) {
+    console.log("COLORTERM environment variable not set, continuing to display with color.");
+    console.log("Set NOCOLOR in the environment or --nocolor in the commandline if there are issues");
+  }
+  enabled = !process.env.NOCOLOR && tty.isatty(1) && tty.isatty(2);
+
+  Object.keys(styles).forEach(function(style) {
+    Object.defineProperty(String.prototype, style, {
+      get: function() {
+        return (enabled ? fmt(styles[style], this) : this);
+      },
+      enumerable: false
     });
+  });
 
-    return styles;
+  return styles;
 };
 
 const render = (packages, options) => {
-
   if (!packages) {
     console.log("No packages listed");
     return false;
   }
 
   color(options.color);
-  const tty = require('tty');
 
   var MAX_LENGTH = process.stdout.columns || 80;
-  var MAX_ROWS = process.stdout.rows || 500;
   var MAX_STARS = 0;
   var MAX_DOWNLOADS = 0;
   var MAX_NAME = 0;
   var MAX_VERSION = 0;
+
   var pad_stars;
   var pad_downs;
-  var pad_name;
   var pad_version;
   var base_length;
   var sorted;
 
   const set_lengths = (pkg) => {
-    var pkg_meta = pkg.metadata;
     var pkg_stars = pkg.stargazers_count;
     var pkg_down = pkg.downloads;
     var pkg_name = pkg.name;
-    if (pkg_meta) {
-      var pkg_ver = pkg.metadata.version || pkg.version;
-      var pkg_desc = pkg.metadata.description || pkg.description;
+    var pkg_ver = "0.0.0.0";
+    if (pkg.metadata) {
+      pkg_ver = pkg.metadata.version;
+    } else {
+      pkg_ver = pkg.version;
     }
-
-    if (parseInt(pkg_stars) > MAX_STARS) { MAX_STARS = parseInt(pkg_stars);}    if (parseInt(pkg_down) > MAX_DOWNLOADS) { MAX_DOWNLOADS = parseInt(pkg_down);}    if (pkg_name.length > MAX_NAME) { MAX_NAME = pkg_name.length;}    var version_len = (pkg_ver) ? pkg_ver.length : 0;
-    if (version_len > MAX_VERSION) { MAX_VERSION = version_len;}  };
+    if (parseInt(pkg_stars) > MAX_STARS) { MAX_STARS = parseInt(pkg_stars); }
+    if (parseInt(pkg_down) > MAX_DOWNLOADS) { MAX_DOWNLOADS = parseInt(pkg_down); }
+    if (pkg_name.length > MAX_NAME) { MAX_NAME = pkg_name.length; }
+    var version_len = (pkg_ver) ? pkg_ver.length : 0;
+    if (version_len > MAX_VERSION) { MAX_VERSION = version_len; }
+  };
 
   const sort_stars = (a, b) => {
     set_lengths(a);
@@ -268,37 +300,37 @@ const render = (packages, options) => {
   };
 
   const table_header = [
-    'Stars',
-    'Downloads',
-    'Package',
-    'Description',
-  ].join(' ');
+    "Stars",
+    "Downloads",
+    "Package",
+    "Description"
+  ].join(" ");
 
-  const table_divider = '-'.padStart(table_header.length, '-');
+  const table_divider = "-".padStart(table_header.length, "-");
 
   const wrap_version = (ver) => {
-    return `(${ver})`;
+    return ["(", ver, ")"].join("");
   };
 
   const format_line = (item) => {
     if (!item.name) { return false; }
-    if (item.metadata){
+    if (item.metadata) {
       item.description = item.metadata.description;
       item.version = item.metadata.version;
     }
     const name = item.name;
-    const downloads = (item.downloads || 0).toString().padStart(pad_downs, ' ');
-    const stars = (item.stargazers_count || 0).toString().padStart(pad_stars, ' ');
-    const version = wrap_version(item.version || '0.0.0');
-    const description = (item.description || 'undefined').slice(0, MAX_LENGTH - base_length);
+    const downloads = (item.downloads || 0).toString().padStart(pad_downs, " ");
+    const stars = (item.stargazers_count || 0).toString().padStart(pad_stars, " ");
+    const version = wrap_version(item.version || "0.0.0");
+    const description = (item.description || "undefined").slice(0, MAX_LENGTH - base_length - name.length);
 
-    return [
-      (options.sort === 'downloads') ? stars.default : stars.yellow,
-      (options.sort === 'downloads') ? downloads.yellow : downloads.default,
+    return ["",
+      (options.sort === "downloads") ? stars.default : stars.yellow.bold,
+      (options.sort === "downloads") ? downloads.yellow.bold : downloads.default,
       name.cyan.bold,
       version.dim.italic,
-      description.default,
-    ].join(' ');
+      description.white
+    ].join(" ");
   };
 
   const print_table = (results) => {
@@ -309,10 +341,10 @@ const render = (packages, options) => {
     for (var item of results) {
       table.push(format_line(item));
     }
-    console.log(table.join('\n'));
+    console.log(table.join("\n"));
   };
 
-  if (options.sort === 'downloads'){
+  if (options.sort === "downloads") {
     sorted = packages.sort(sort_downloads);
   } else {
     sorted = packages.sort(sort_stars);
@@ -320,55 +352,58 @@ const render = (packages, options) => {
 
   pad_stars = MAX_STARS.toString().length;
   pad_downs = MAX_DOWNLOADS.toString().length;
-  pad_name = MAX_NAME;
   pad_version = MAX_VERSION;
-  base_length = (4 * 2 +1) + pad_stars + pad_downs + pad_name + pad_version;
+  base_length = (4 * 2) + pad_stars + pad_downs + pad_version;
+
+  debug("MAX_LENGTH", MAX_LENGTH);
+  debug("pad_stars, pad_downs, pad_name, pad_version", pad_stars, pad_downs, pad_version);
 
   print_table(sorted);
 };
 
-const __DEV__ = ( process.env.NODE_ENV === 'dev'|| process.env.NODE_ENV === 'development' );
+const encoding = "utf-8";
 
-const encoding = 'utf-8';
-var query;
-var data = '';
-const defaults = {
-  verbose: false,
-  sort: 'stars',
-  select: 'packages',
-  color: true,
+const process_file = async (filename) => {
+  const { fs } = require("fs");
+  var fildata;
+  console.log("filename", filename);
+  if (!filename) { return false; }
+
+  let base_dir = process.env.INIT_CWD || ".";
+  console.log("base_dir", base_dir);
+
+  var filepath = [base_dir, filename].join("/");
+  console.log("filepath", filepath);
+  await fs.readFile(filepath, ((err, data) => {
+    if (err) {console.log("Error reading from file", err, data);
+      return false;
+    }
+    fildata = Buffer.from(data).toString(encoding);
+  }));
+
+  console.log("fildata", fildata);
+  return JSON.parse(fildata);
 };
 
-const main = (query, options) => {
-  if (!query && !options.select){
-    help();
-    process.exit(0);
-  }
-
-  if (options.verbose) {
-    console.log('options', options);
-  }
-
-  const packages = get_packages(query, options);
-  render(packages, options);
-};
-
-const parse_options$1 = () => {
-  var pkgrc = process.env.PKG_OPTIONS || "{}";
-  options = Object.assign({}, defaults, JSON.parse(pkgrc));
-  debug('Process Env:', process.env, 'Options: ', options );
-  return options;
-};
-
-const process_stream = (options) => {
+const process_stream = (data) => {
   const content = Buffer.from(data).toString(encoding);
-  if (!content){
-    help();
-    process.exit(0);
+
+  debug("data", data);
+
+  var options = parse_options();
+
+  var args = process.argv;
+  args.shift();
+  if (args[0] === __filename) {
+    args.shift();
   }
+
+  var runtime_options = parse_arguments(args);
+  debug("runtime_options", runtime_options);
+  options = Object.assign({}, options, runtime_options);
+
   try {
     var packages = JSON.parse(content.trim());
-    debug(packages);
   } catch (e) {
     console.log("Error processing input data", e);
   } finally {
@@ -376,34 +411,62 @@ const process_stream = (options) => {
   }
 };
 
-var options;
-options = parse_options$1();
-
-var args = process.argv;
-args.shift();
-if (args[0] === __filename) {
+const main = () => {
+  var query;
+  var args = process.argv;
   args.shift();
-}
-var runtime_options = parse_arguments(args);
+  if (args[0] === __filename) {
+    args.shift();
+  }
 
-options = Object.assign({}, options, runtime_options);
-query = options.query;
+  var options = parse_options();
+  var runtime_options = parse_arguments(args);
 
+  options = Object.assign({}, options, runtime_options);
+
+  if (options.verbose) {
+    console.log("options", options);
+  }
+
+  if(options.select === "featured") {
+    query="";
+
+  } else {
+
+    query = options.query;
+    if (!query){
+      help();
+      process.exit(0);
+    }
+  }
+
+  debug(options);
+  var packages = [];
+  if (options.file) {
+    packages = process_file(options.file);
+    console.log("packages");
+
+  } else {
+    packages = get_packages(query, options);
+  }
+
+  render(packages, options);
+};
+
+debug("START");
 if (process.stdin.isTTY) {
-
-  main(query, options);
-
+  main();
 } else {
-
-  process.stdin.setEncoding(encoding)
-  .on('readable', function() {
-    var chunk;
-    while (chunk = process.stdin.read()){ data += chunk; }
-  })
-  .on('end', function () {
-    data = data.replace(/\n$/, '');
-
-    process_stream(options);
-
-  });
+  var data = "";
+  process.stdin
+    .setEncoding(encoding)
+    .on("readable", function() {
+      var chunk;
+      debug("noiTTY");
+      while ( chunk = process.stdin.read()
+    ){ data += chunk; }
+    }).on("end", function () {
+      data = data.replace(/\n$/, "");
+      process_stream(data);
+    });
 }

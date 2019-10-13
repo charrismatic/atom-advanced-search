@@ -1,0 +1,22 @@
+#!/bin/bash
+
+BASEDIR="$(npm prefix)"
+DEPLOY_DEST=deploy
+
+DESTDIR="${BASEDIR}/"
+RELEASE_DATE="$(date +'%Y%m%d%H%M%S')"
+
+# BACKUP FIRST, REMOVE LATER FOR SAFETY
+#rm --preserve-root -rf $BASEDIR/$DESTDIR
+
+if [[ -d "$BASEDIR/.tmp/$DEPLOY_DEST" ]]; then
+  echo $BASEDIR/.tmp/$DEPLOY_DEST $BASEDIR/.tmp/Release_$RELEASE_DATE
+    mv $BASEDIR/.tmp/$DEPLOY_DEST $BASEDIR/.tmp/Release_$RELEASE_DATE
+fi
+
+mkdir $BASEDIR/.tmp/$DEPLOY_DEST
+
+rsync --recursive $BASEDIR/static/*  ${BASEDIR}/.tmp/${DEPLOY_DEST}/
+
+#  better run build scripts directly to get any changes
+rsync -a  $BASEDIR/src/scripts/*.min.js .tmp/${DEPLOY_DEST}/assets/scripts

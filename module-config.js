@@ -1,36 +1,35 @@
 // const rollup = require('rollup');
 
-const { terser } = require('rollup-plugin-terser');
-const executable = require('rollup-plugin-executable');
-const filesize = require('rollup-plugin-filesize');
-const cleanup = require('rollup-plugin-cleanup');
-const uglify = require('rollup-plugin-terser');
-const json = require('rollup-plugin-json');
-const commonjs = require('rollup-plugin-commonjs');
-const resolve = require('rollup-plugin-node-resolve');
+const { terser } = require("rollup-plugin-terser");
+const executable = require("rollup-plugin-executable");
+const filesize = require("rollup-plugin-filesize");
+const cleanup = require("rollup-plugin-cleanup");
+const json = require("rollup-plugin-json");
+const commonjs = require("rollup-plugin-commonjs");
+const resolve = require("rollup-plugin-node-resolve");
 
 var cleanup_options = {
-  comments: 'some',
+  comments: "some",
   maxEmptyLines: 1,
   sourcemap: false,
   compactComments: true,
-  extensions: ['.js'],
-  lineEndings: 'unix',
+  extensions: [".js"],
+  lineEndings: "unix",
 };
 
 
 const commonjs_options = {
   // non-CommonJS modules will be ignored, but you can also
   // specifically include/exclude files
-  include: 'lib/*',
+  include: "lib/*",
   // exclude: [ 'node_modules/*' ],
-  extensions: [ '.js' ],
+  extensions: [ ".js" ],
   // if true then uses of `global` won't be dealt with by this plugin
   // ignoreGlobal: false,  // Default: false
   sourceMap: false,  // Default: true
   preferBuiltins: true,
   // namedExports: {
-    // './lib/render': ['render'],
+  // './lib/render': ['render'],
   // },
   // sometimes you have to leave require statements
   // ignore: [ 'conditional-runtime-dependency' ]
@@ -38,26 +37,26 @@ const commonjs_options = {
 
 
 const resolve_options = {
-  mainFields: ['main'], // Default: ['module', 'main']
-  extensions: [ '.js', '.json' ],
+  mainFields: ["main"], // Default: ['module', 'main']
+  extensions: [ ".js", ".json" ],
   preferBuiltins: true,
   // jail: '/lib', // Default: '/'
   // only: [ 'some_module', /^@some_scope\/.*$/ ], // Default: null
   // modulesOnly: true, // Default: false
   // dedupe: [], // Default: []
-  customResolveOptions: {
-    moduleDirectory: 'lib'
-  }
+  // customResolveOptions: {
+  //   moduleDirectory: "lib"
+  // }
 };
 
 
 
 // All JSON files will be parsed by default,
 const json_options = {
-  include: './package.json',
-  exclude: [ 'node_modules/**'],
+  include: "./package.json",
+  exclude: [ "node_modules/**"],
   preferConst: true,
-  indent: '  ',
+  indent: "  ",
   compact: true,
   namedExports: true
 };
@@ -68,13 +67,13 @@ const json_options = {
 const BUILD_ENV = process.env.NODE_ENV;
 
 const mod = {
-  name: 'apm-search',
-  banner: '#!/usr/bin/env node',
-  path: './',
-  input: 'index.js',
-  output: BUILD_ENV === 'production' ? 'apm-search.prod.js' : 'apm-search.dev.js',
-  dest: './dist/',
-  format: 'cjs',
+  name: "apm-search",
+  banner: "#!/usr/bin/env node",
+  path: "./",
+  input: "index.js",
+  output: BUILD_ENV === "production" ? "apm-search.js" : "apm-search.dev.js",
+  dest: "./dist/",
+  format: "cjs",
   sourcemap: false,
   strict: true,
   watch: false,
@@ -114,7 +113,7 @@ pluginArr.push(executable());
 // }
 // PRODUCTION:PLUGINS
 // ------------------
-if (BUILD_ENV === 'production'){
+if (BUILD_ENV === "production"){
   pluginArr.push(terser());
 }
 

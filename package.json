@@ -1,24 +1,104 @@
 {
-  "name": "atom-advanced-search",
-  "version": "1.0.3",
-  "description": "search, sort, and filtering tool for Atom apm command line",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "standard",
-    "prepublish": "npm run bump && npm run lint:json",
-    "lint:json": "jsonlint -s -c ./package.json",
-    "bump": "npm version patch",
-    "dev": "./node_modules/.bin/rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development",
-    "build": "./node_modules/.bin/rollup -c ./module-config.js --exports named --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production",
-    "deploy": ""
-  },
+  "author": "Matt Harris <charrismatic@protonmail.com> (https://charrismatic.github.io/)",
   "bin": {
-    "apm-search": "./bin/apm-search"
+    "apm-search": "./dist/apm-search.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/charrismatic/atom-advanced-search.git"
+  "bugs": {
+    "url": "https://github.com/charrismatic/atom-advanced-search/issues"
+  },
+  "config": {
+    "defaultOptions": {
+      "color": true,
+      "file": false,
+      "verbose": false,
+      "sort": "stars",
+      "select": "packages"
+    },
+    "colorScheme": {
+      "Col": [
+        "dim",
+        "default"
+      ],
+      "ColActive": [
+        "bold",
+        "yellow"
+      ],
+      "pkgName": [
+        "bold",
+        "cyan"
+      ],
+      "pkgVer": [
+        "dim",
+        "italic"
+      ],
+      "pkgDesc": [
+        "white"
+      ],
+      "tableHeader": [
+        "bold"
+      ],
+      "Messages": [
+        "default"
+      ],
+      "MessagesVerbose": [
+        "green"
+      ],
+      "MessagesDebug": [
+        "dim",
+        "blue"
+      ]
+    }
+  },
+  "description": "search, sort, and filtering tool for Atom apm command line",
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-recommended": "^4.0.0",
+    "husky": "^3.0.9",
+    "jsonlint": "^1.6.3",
+    "lint-staged": "^10.0.0-0",
+    "pkg-ok": "^2.3.1",
+    "prettier": "^1.18.2",
+    "rollup": "^1.23.1",
+    "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-executable": "^1.5.1",
+    "rollup-plugin-filesize": "^6.2.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.1.2"
+  },
+  "directories": {
+    "lib": "./lib",
+    "doc": "./doc",
+    "test": "./__test__"
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "spec/",
+    "index.js",
+    ".github/",
+    "assets/",
+    "__test__",
+    "README.md",
+    "package.json"
+  ],
+  "homepage": "https://github.com/charrismatic/atom-advanced-search",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:js",
+      "pre-push": "npm run lint:fixjson && git pull"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint --",
+      "git add"
+    ],
+    "package.json": [
+      "npm run lint --",
+      "git add"
+    ]
   },
   "keywords": [
     "atom",
@@ -28,20 +108,37 @@
     "search",
     "apm"
   ],
-  "author": "Matt Harris <charrismatic@protonmail.com> (https://charrismatic.github.io/)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/charrismatic/atom-advanced-search/issues"
+  "main": "index.js",
+  "name": "atom-advanced-search",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charrismatic/atom-advanced-search.git"
   },
-  "homepage": "https://github.com/charrismatic/atom-advanced-search#readme",
-  "devDependencies": {
-    "rollup": "^1.23.1",
-    "rollup-plugin-cleanup": "^3.1.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-executable": "^1.5.1",
-    "rollup-plugin-filesize": "^6.2.0",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.1.2"
-  }
+  "scripts": {
+    "main": "dist/apm-search.js atom-advanced",
+    "build": "npm run build:prod && npm run build:dev",
+    "build:prod": "rollup -c ./module-config.js --exports named --no-strict --extend --environment INCLUDE_DEPS,NODE_ENV:production",
+    "build:dev": "rollup -c ./module-config.js --environment INCLUDE_DEPS,NODE_ENV:development",
+    "build:watch": "rollup -c ./module-config.js -w --environment INCLUDE_DEPS,NODE_ENV:development",
+    "deploy": "",
+    "env": "env | sort | grep npm",
+    "lint": "npm run lint:json & npm run lint:js",
+    "lint:pretty": "prettier ",
+    "lint:prettyfix": "prettier --write",
+    "lint:json": "jsonlint -s -c ./package.json",
+    "lint:fixjson": "jsonlint -is -c ./package.json",
+    "lint:js": "./node_modules/.bin/eslint index.js ./lib",
+    "lint:fixjs": "./node_modules/.bin/eslint --fix -- .",
+    "prepublishOnly": "npm run lint:json && npm run bump && pkg-ok",
+    "prepack": "pkg-ok",
+    "pretest": "npm run build",
+    "publish": "npm publish",
+    "publish:test": "npm run lint:json && npm publish --dry-run",
+    "tap": "tap -J --timeout 300 --no-esm",
+    "test": "npm run test-tap --",
+    "ver:bump": "npm version patch -m \"Increasing npm package version v%s\"",
+    "ver:release": "npm version patch -m \"Release: %s\""
+  },
+  "version": "1.0.3"
 }

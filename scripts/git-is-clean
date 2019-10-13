@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+# GET CURRENT STATUS OF GIT REPO
+
+_git_prompt_get_status () {
+  STATUS=$(git status 2>&1 | tee)
+      DIRTY=$(echo -n "${STATUS}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?")
+  UNTRACKED=$(echo -n "${STATUS}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?")
+      AHEAD=$(echo -n "${STATUS}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?")
+    NEWFILE=$(echo -n "${STATUS}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?")
+    RENAMED=$(echo -n "${STATUS}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?")
+    DELETED=$(echo -n "${STATUS}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?")
+  BITS=""
+  [[ "${RENAMED}" == "0" ]] && BITS=">${BITS}"
+  [[ "${AHEAD}" == "0" ]] && BITS="*${BITS}"
+  [[ "${NEWFILE}" == "0" ]] && BITS="+${BITS}"
+  [[ "${UNTRACKED}" == "0" ]] && BITS="?${BITS}"
+  [[ "${DELETED}" == "0" ]] && BITS="X${BITS}"
+  [[ "${DIRTY}" == "0" ]] && BITS="!${BITS}"
+  [[ ! "${BITS}" == "" ]] && echo " ${BITS}"
+  echo ""
+}
+
+
+# GET CURRENT BANCH IN GIT REPO
+
+_git_prompt_get_branch () {
+  BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+  if [ ! "${BRANCH}" == "" ]; then
+    STAT=$(_git_prompt_get_status)
+    echo "[${BRANCH}${STAT}]"
+  else
+    echo ""
+  fi
+}
+
+
+
+_prompt_check_errors () {
+  RETVAL=$?
+  [ $RETVAL -ne 0 ] && echo "$RETVAL"
+}
+
+
+RESULT="$(_git_prompt_get_branch) $(_prompt_check_errors)"
+echo -e "${RESULT}"
+
+_git_prompt_get_status
+_git_prompt_get_branch

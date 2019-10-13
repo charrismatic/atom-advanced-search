@@ -2,9 +2,9 @@ module.exports = {
     "env": {
         "node": true,
         "browser": false,
-        "es6": true
+        "es6": true,
+        "shelljs": true,
     },
-    "extends": "eslint:recommended",
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
@@ -14,21 +14,9 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
-        "indent": [
-            "error",
-            2
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "quotes": [
-            "error",
-            "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ]
+      "indent": ["warn", 2],
+      "linebreak-style": [ "error",  "unix" ],
+      "quotes": [ "error", "double" ],
+      "semi": [ "error", "always" ]
     }
 };
