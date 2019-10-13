@@ -1,32 +1,36 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
+about: Document the issue you experience as best you can
+title: "[ISSUE] <Problem Description> "
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Description**
+A clear and concise description of what the issue is.
 
-**To Reproduce**
+**Steps To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1. The issue happend at this location / environment '...'
+2. I ran the command '....'
+3. ... did/didn't happen.
+4. The result i received was
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+What should have happened
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+__Environement Description__ 
+
+**Desktop**
  - OS: [e.g. iOS]
  - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
+
+--- 
 
 **Smartphone (please complete the following information):**
  - Device: [e.g. iPhone6]
@@ -36,3 +40,5 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+
+**Include logs or output of debugging commands**

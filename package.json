@@ -87,7 +87,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint:js",
-      "pre-push": "npm run lint:fixjson && git pull"
+      "pre-push": "npm run lint:fixjson & npm run lint:js & npm run ver:bump && git pull"
     }
   },
   "lint-staged": {
