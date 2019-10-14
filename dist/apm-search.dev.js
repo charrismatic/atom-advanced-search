@@ -29,12 +29,60 @@ const help = () => {
 const __DEBUG__ = process.env.NODE_DEBUG_LOGGING ? true : false;
 
 const debug = (...msg) => {
+  var util = require("util");
+  function _inspect(data){
+    console.log(util.inspect(data, true,3, true));
+  }
+
   if (__DEBUG__){
-    console.log(...msg);
+    _inspect(...msg);
+
   }
 };
 
-const name="atom-advanced-search";const version="1.0.3";
+const TimerLabels = {};
+const Timers = {};
+
+const debugTime = (label,  action) => {
+  const __DEBUG__ = process.env.NODE_DEBUG_LOGGING ? true : false;
+
+  if (__DEBUG__){
+    const perf = require("perf_hooks");
+
+    switch (action) {
+    case "start":
+      TimerLabels[label] = perf.performance;
+      console.time(label);
+      console.timeLog(label);
+      break;
+
+    case "mark":
+      console.timeLog(label);
+      break;
+
+    case "end":
+      console.timeLog(label);
+      console.timeEnd(label);
+      let _timer = TimerLabels[label].nodeTiming;
+      Timers[label] = {
+        name: _timer.name,
+        duration: [_timer.duration.toString().split(".")[0], _timer.duration.toString().split(".")[1].slice(0,10)].join("."),
+        environment: [_timer.environment.toString().split(".")[0], _timer.environment.toString().split(".")[1].slice(0,10)].join("."),
+        bootstrapComplete: [_timer.bootstrapComplete.toString().split(".")[0], _timer.bootstrapComplete.toString().split(".")[1].slice(0,10)].join("."),
+        timeOrigin: [TimerLabels[label].timeOrigin.toString().split(".")[0], TimerLabels[label].timeOrigin.toString().split(".")[1].slice(0,10)].join("."),
+      };
+      console.log([label,"END","\t"].join(" "), JSON.stringify(Timers[label]));
+      TimerLabels[label] = null;
+      break;
+
+    default:
+      console.timeLog(label);
+      break;
+    }
+  }
+};
+
+const name="atom-advanced-search";const version="1.0.4";
 
 const pkgver = () => {
   console.log([name, version].join(" v"));
@@ -56,12 +104,15 @@ const parse_options = (options) => {
 };
 
 const parse_arguments = (args) => {
+  debugTime("[parse_arguments]", "start");
+  debug("[parse_arguments] args", typeof(args), {args});
+
   var options = {};
-  debug("Args:", typeof(args), args);
+
   if (!args || args.length === 0){
     return false;
-
   } else if (!Array.isArray(args)) {
+
     if (typeof(args) === "object" && Object.entries(args).length > 0) {
       parse_options(args);
     }
@@ -71,7 +122,7 @@ const parse_arguments = (args) => {
   } else {
     var arg = args.shift();
     do {
-      debug("start loop", arg);
+      debug("[parse_arguments] start loop", arg);
       switch (arg) {
       case __filename:
         debug("found this file, skipping", arg);
@@ -80,84 +131,96 @@ const parse_arguments = (args) => {
 
       case "--help":
         help();
-        debug("help", arg);
+        debug("[parse_arguments] set help", arg);
+        debug("[parse_arguments] print help exit");
+        debugTime("[parse_arguments]", "end");
         process.exit(0);
         break;
 
       case "--version":
+        debugTime("[parse_arguments]", "end");
+        debug("[parse_arguments] print version exit");
         pkgver();
-        debug("version", arg);
+        debug("[parse_arguments] set version", arg);
         process.exit(0);
         break;
 
       case "--verbose":
         options.verbose = true;
-        debug("verbose", arg);
+        debug("[parse_arguments] set verbose", arg);
         break;
 
       case "--sort-stars":
         options.sort = "stars";
-        debug("stars", arg);
+        debug("[parse_arguments] set stars", arg);
         break;
 
       case "--nocolor":
         process.env.NOCOLOR = true;
         options.color = false;
-        debug("color", arg);
+        debug("[parse_arguments] set color", arg);
         break;
 
       case "--sort-downloads":
         options.sort = "downloads";
-        debug("downloads", arg);
+        debug("[parse_arguments] set downloads", arg);
         break;
 
       case "--select-packages":
         options.select = "packages";
-        debug("stars", arg);
+        debug("[parse_arguments] set selected stars", arg);
         break;
 
       case "--select-themes":
         options.select = "themes";
-        debug("themes", arg);
+        debug("[parse_arguments] set selected themes", arg);
         break;
 
       case "--select-featured":
         options.select = "featured";
-        debug("featured", arg);
+        debug("[parse_arguments] set selected featured", arg);
         break;
 
       case "--file":
         arg = args.shift() || false;
         options.file = arg;
-        debug("file", arg);
+        debug("[parse_arguments] set file", arg);
         break;
 
       default:
         if (arg.match(/^--/)){
-          debug(`Notice: Argument '${arg}' is unkown.`);
-          debug("unknown", arg);
+          var arg_status = [];
+          arg_status.push("unknown");
         } else if (typeof(arg) === "undefined") {
-          debug("is undefined", arg);
-
+          debug("[parse_arguments] is undefined", arg);
+          arg_status.push("undefined");
         } else if ( arg.length > 0) {
           options.query = arg;
-          debug("is query", arg);
+          arg_status = "query";
+          debug("[parse_arguments] is query", arg);
         } else {
-          debug("didnt match passing..", arg);
+          debug("[parse_arguments] didnt match passing..", arg_status, arg);
+          console.log(["Notice: Argument", arg, "is unknown"].join(" "));
         }
-
-        debug("----end loop----\n", arg);
+        debug("----end loop----\n");
       }
 
       arg = args.shift();
     } while (arg);
     debug("stopping", args, arg);
   }
+  debugTime("[parse_arguments]", "end");
+  debug("[parse_arguments] end loop", JSON.stringify({options}));
   return options;
 };
 
 const get_packages = (query, options) => {
-  const { execSync } = require("child_process");
+  debugTime("[get_packages]", "start");
+  debug("[get_packages] args", {query}, {options});
+
+  if (!query && !options.featured) {
+    return false;
+  }
 
   let comm = [
     "apm",
@@ -171,18 +234,22 @@ const get_packages = (query, options) => {
     console.log(comm);
   }
 
-  debug("[GET_PACKAGES] query:", query);
-  debug("[GET_PACKAGES] comand:", comm);
-  debug("[GET_PACKAGES] options:\n", options);
+  debug("[get_packages] execSync");
+  debugTime("[get_packages]", "mark");
 
   console.log([ "Searching apm (", options.select, ") for:", query ].join(" "));
 
+  const { execSync } = require("child_process");
   try {
     const data = execSync(comm.toString());
     const text = Buffer.from(data).toString("UTF-8");
     const packages = JSON.parse(text.trim());
+    debug("[get_packages] return");
+    debugTime("[get_packages]", "end");
     return packages;
   } catch (e) {
+    debug("[get_packages] error");
+    debugTime("[get_packages]", "end");
     console.error("exec error: ", e);
     return e;
   }
@@ -241,8 +308,13 @@ const color = (enabled) => {
 };
 
 const render = (packages, options) => {
+  debugTime("[render]", "start");
+  debug("[render] args", {packages}, {options});
+
   if (!packages) {
     console.log("No packages listed");
+    debug("[render] exit no packages");
+    debugTime("[render]", "end");
     return false;
   }
 
@@ -345,8 +417,12 @@ const render = (packages, options) => {
   };
 
   if (options.sort === "downloads") {
+    debug("[render] sort_downloads");
+    debugTime("[render]", "mark");
     sorted = packages.sort(sort_downloads);
   } else {
+    debug("[render] sort_stars");
+    debugTime("[render]", "mark");
     sorted = packages.sort(sort_stars);
   }
 
@@ -355,10 +431,18 @@ const render = (packages, options) => {
   pad_version = MAX_VERSION;
   base_length = (4 * 2) + pad_stars + pad_downs + pad_version;
 
-  debug("MAX_LENGTH", MAX_LENGTH);
-  debug("pad_stars, pad_downs, pad_name, pad_version", pad_stars, pad_downs, pad_version);
-
+  debug("[render] print table");
+  debugTime("[render]", "mark");
+  debug(
+    ["Longest", MAX_LENGTH].join(": "),
+    ["pad_stars", pad_stars].join(": "),
+    ["pad_downs", pad_downs].join(": "),
+    ["pad_version", pad_version].join(": "),
+  );
   print_table(sorted);
+  debug("[render] done");
+  debugTime("[render]", "end");
+  return true;
 };
 
 const encoding = "utf-8";
@@ -386,9 +470,12 @@ const process_file = async (filename) => {
 };
 
 const process_stream = (data) => {
+  debugTime("[process_stream]", "start");
+  debug("[process_stream] start");
+
   const content = Buffer.from(data).toString(encoding);
 
-  debug("data", data);
+  debug("received data stream:", typeof data, data.length);
 
   var options = parse_options();
 
@@ -407,13 +494,17 @@ const process_stream = (data) => {
   } catch (e) {
     console.log("Error processing input data", e);
   } finally {
+    debug("[process_stream] exit to render stream");
+    debugTime("[process_stream]", "end");
     render(packages, options);
   }
 };
 
-const main = () => {
+const _main = () => {
+
   var query;
   var args = process.argv;
+
   args.shift();
   if (args[0] === __filename) {
     args.shift();
@@ -428,44 +519,73 @@ const main = () => {
     console.log("options", options);
   }
 
-  if(options.select === "featured") {
+  if (options.select === "featured") {
     query="";
-
   } else {
 
     query = options.query;
     if (!query){
       help();
+      debugTime("[main]", "end");
       process.exit(0);
     }
   }
 
-  debug(options);
+  debug({options});
   var packages = [];
   if (options.file) {
+    debugTime("[main]", "mark");
     packages = process_file(options.file);
-    console.log("packages");
-
+    debugTime("[main]", "mark");
   } else {
+    debugTime("[main]", "mark");
     packages = get_packages(query, options);
+    debugTime("[main]", "mark");
   }
 
-  render(packages, options);
+  let status = render(packages, options);
+  return status;
+
+};
+
+const main = ()=>{
+  debugTime("[main]", "start");
+  let status = _main();
+  debugTime("[main]", "end");
+  debug("[main] result", status);
+  process.exit(0);
 };
 
 debug("START");
+debugTime("[Application]", "start");
 if (process.stdin.isTTY) {
+
+  debug("[Application] init main (isTTY)");
+  debugTime("[Application]", "mark");
+
   main();
+
 } else {
+
   var data = "";
   process.stdin
     .setEncoding(encoding)
     .on("readable", function() {
       var chunk;
-      debug("noiTTY");
-      while ( chunk = process.stdin.read()
-    ){ data += chunk; }
+
+      debug("[Application] read stream START (noTTY)");
+      debugTime("[Application]", "mark");
+
+      while (chunk = process.stdin.read()){ data += chunk; }
+
+      debug("[Application] read stream END (noTTY)");
+      debugTime("[Application]", "mark");
+
     }).on("end", function () {
+
+      debug("[Application] init process_stream (noTTY)");
+      debugTime("[Application]", "mark");
+
       data = data.replace(/\n$/, "");
       process_stream(data);
     });
